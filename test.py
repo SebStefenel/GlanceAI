@@ -6,7 +6,7 @@ client = Together(api_key="e338fa9f9a17065ad19317716e44a1d73d4a2e0283a13cfece8b7
 
 
 response = client.chat.completions.create(
-    model="Qwen/Qwen3-235B-A22B-fp8-tput",
+    model="deepseek-ai/DeepSeek-V3",
     messages=[
       { 
         "role": "user",
