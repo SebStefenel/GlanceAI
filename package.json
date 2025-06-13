@@ -1,0 +1,17 @@
+{
+  "name": "research-assistant-",
+  "version": "1.0.0",
+  "description": "- Gives summaries of google articles based on the search",
+  "main": "background.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "dotenv-webpack": "^8.1.0",
+    "webpack": "^5.99.9",
+    "webpack-cli": "^6.0.1"
+  }
+}
