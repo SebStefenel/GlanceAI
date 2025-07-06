@@ -1,3 +1,4 @@
+import { key } from "./config.js";
 chrome.runtime.onMessage.addListener((request, sender) => {
   if (request.action === "summarize") {
     const { url, query } = request;
@@ -43,7 +44,7 @@ chrome.runtime.onMessage.addListener((request, sender) => {
 });
 
 async function summarizeWithTogether(text, query) {
-  const TOGETHER_API_KEY = "update-here";
+  const TOGETHER_API_KEY = key;
 
   const prompt = `Query: "${query}". Article: """${text}"""\n\n in 3 sentances Summarize the article and explain how it answers the query.`;
 
