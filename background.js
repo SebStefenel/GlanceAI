@@ -43,7 +43,7 @@ chrome.runtime.onMessage.addListener((request, sender) => {
 });
 
 async function summarizeWithTogether(text, query) {
-  const TOGETHER_API_KEY = "e338fa9f9a17065ad19317716e44a1d73d4a2e0283a13cfece8b7f037e92c7c8";
+  const TOGETHER_API_KEY = "update-here";
 
   const prompt = `Query: "${query}". Article: """${text}"""\n\n in 3 sentances Summarize the article and explain how it answers the query.`;
 
