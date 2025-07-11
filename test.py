@@ -1,3 +1,6 @@
+#thise file is not neccesary for the chrome extension to function, it is just for testing purposes
+# it is used to test the Together API
+
 from together import Together
 import os
 
