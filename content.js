@@ -15,6 +15,8 @@ document.addEventListener("mouseover", (e) => {
 });
 
 chrome.runtime.onMessage.addListener((message) => {
+  console.log("📩 Received message from background:", message); // <-- Added debug log
+
   if (message.action === "displaySummary") {
     const link = document.querySelector(`a[href="${message.url}"]`);
     if (link) {

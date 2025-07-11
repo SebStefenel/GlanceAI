@@ -1,4 +1,3 @@
-import { key } from "./config.js";
 chrome.runtime.onMessage.addListener((request, sender) => {
   if (request.action === "summarize") {
     const { url, query } = request;
@@ -32,10 +31,11 @@ chrome.runtime.onMessage.addListener((request, sender) => {
       })
       .catch(err => {
         console.error("Summarization failed", err);
+        const message = err.message || "Unknown error";
         if (sender.tab?.id) {
           chrome.tabs.sendMessage(sender.tab.id, {
             action: "displaySummary",
-            summary: "Error: Failed to summarize. Please try again.",
+            summary: "Error: " + message,
             url: url
           });
         }
@@ -44,7 +44,7 @@ chrome.runtime.onMessage.addListener((request, sender) => {
 });
 
 async function summarizeWithTogether(text, query) {
-  const TOGETHER_API_KEY = key;
+  const TOGETHER_API_KEY = "";
 
   const prompt = `Query: "${query}". Article: """${text}"""\n\nIn 3 sentences summarize the article and explain how it answers the query.`;
 
@@ -73,11 +73,11 @@ async function summarizeWithTogether(text, query) {
     }
 
     const data = await response.json();
-    
-    if (!data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
+
+    if (!data.choices || !data.choices[0]?.message?.content) {
       throw new Error("Invalid API response structure");
     }
-    
+
     return data.choices[0].message.content;
   } catch (error) {
     console.error("API call failed:", error);
