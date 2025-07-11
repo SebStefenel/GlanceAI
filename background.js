@@ -46,7 +46,7 @@ chrome.runtime.onMessage.addListener((request, sender) => {
 async function summarizeWithTogether(text, query) {
   const TOGETHER_API_KEY = key;
 
-  const prompt = `Query: "${query}". Article: """${text}"""\n\n in 3 sentances Summarize the article and explain how it answers the query.`;
+  const prompt = `Query: "${query}". Article: """${text}"""\n\nIn 3 sentences summarize the article and explain how it answers the query.`;
 
   const body = {
     model: "deepseek-ai/DeepSeek-V3",
