@@ -1,4 +1,4 @@
-# Research-Assistant
+# AI-Research-Assistant
 
 # 🔍 AI Search Summary Chrome Extension
 
