@@ -48,3 +48,6 @@ To use this extension, **you must generate your own API key from [Together.ai](h
 The extension will now use your key to summarize links via the `deepseek-ai/DeepSeek-V3` model.
 
 > ⚠️ **Note:** Do not share your API key publicly — it is tied to your usage quota and billing.
+
+
+Test
