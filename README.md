@@ -1,4 +1,4 @@
-# AI-Research-Assistant
+# GlanceAI
 
 # 🔍 AI Search Summary Chrome Extension
 
