@@ -44,20 +44,27 @@ chrome.runtime.onMessage.addListener((request, sender) => {
 });
 
 async function summarizeWithTogether(text, query) {
-  const TOGETHER_API_KEY = "";
+  // Step 1: Get the saved API key from Chrome storage
+  const { apiKey: TOGETHER_API_KEY } = await new Promise((resolve) => {
+    chrome.storage.sync.get({ apiKey: '' }, resolve);
+  });
 
-  const prompt = `Query: "${query}". Article: """${text}"""\n\nIn 2 sentences explain how this article relfects the requests of the search.`;
+  if (!TOGETHER_API_KEY) {
+    throw new Error("No API key found. Please set one in the extension options page.");
+  }
 
+  // Step 2: Build the prompt
+  const prompt = `Query: "${query}". Article: """${text}"""\n\nIn 2 sentences explain how this article reflects the search query.`;
+
+  // Step 3: Build the API request
   const body = {
     model: "deepseek-ai/DeepSeek-V3",
     messages: [
-      {
-        role: "user",
-        content: prompt
-      }
+      { role: "user", content: prompt }
     ]
   };
 
+  // Step 4: Make the request to Together API
   try {
     const response = await fetch("https://api.together.xyz/v1/chat/completions", {
       method: "POST",
@@ -79,6 +86,7 @@ async function summarizeWithTogether(text, query) {
     }
 
     return data.choices[0].message.content;
+
   } catch (error) {
     console.error("API call failed:", error);
     throw error;

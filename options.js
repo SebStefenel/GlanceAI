@@ -7,15 +7,20 @@ function saveOptions() {
     status.textContent = 'Options saved.';
     setTimeout(() => {
       status.textContent = '';
-    }, 750);
+    }, 1000);
   });
 }
 
 function restoreOptions() {
-  chrome.storage.sync.get({
-    apiKey: ''
-  }, (items) => {
-    document.getElementById('apiKey').value = items.apiKey;
+  chrome.storage.sync.get({ apiKey: '' }, (items) => {
+    const apiInput = document.getElementById('apiKey');
+    const status = document.getElementById('status');
+
+    apiInput.value = items.apiKey;
+
+    if (!items.apiKey) {
+      status.textContent = 'Please enter your API key to get started.';
+    }
   });
 }
 
