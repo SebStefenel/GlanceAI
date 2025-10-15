@@ -25,14 +25,6 @@ A Chrome Extension that uses Together.ai to summarize articles linked in Google 
 
 ---
 
-## 🚧 Future Improvements
-
-- 📚 **Support for research libraries**: Extend compatibility to academic databases like JSTOR, Springer, and Semantic Scholar so the extension can summarize scholarly articles directly from those sites.
-- ⌨️ **Refined interaction trigger**: Require users to hold the `Ctrl` key while hovering over a link to reduce accidental summarization and give more intentional control.
-- 💾 **Summary caching**: Implement local storage or caching so previously summarized links don’t regenerate every time, reducing load times and saving on API usage.
-
----
-
 ## 🔑 Setup: SetUp Your Own API Key
 
 To use this extension, **you must generate your own API key from [Together.ai](https://www.together.ai)**. The extension relies on the Together API to generate AI summaries, and each user must authenticate with their own key.
