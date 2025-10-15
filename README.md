@@ -34,7 +34,7 @@ To use this extension, **you must generate your own API key from [Together.ai](h
 1. **Sign up at** [https://www.together.ai](https://www.together.ai)
 2. Go to the **API Keys** section in your account dashboard
 3. **Generate a new key**
-4. Open the extension’s **Background page** 
+4. Open the extension’s Options 
 5. **Paste your API key** and click **Save**
 
 The extension will now use your key to summarize links via the `deepseek-ai/DeepSeek-V3` model.
