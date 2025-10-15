@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Research Assistant",
+  "name": "GlanceAI",
   "version": "1.0",
   "permissions": [
     "activeTab",
