@@ -1,9 +1,21 @@
-document.addEventListener("mouseover", (e) => {
+// 'idle'   = ready to trigger on Ctrl+Alt + hover
+// 'locked' = tooltip is pinned, Ctrl+Alt dismisses it
+let state = 'idle';
+
+document.addEventListener('keydown', (e) => {
+  if (e.ctrlKey && e.altKey && state === 'locked') {
+    hideTooltip();
+    state = 'idle';
+  }
+});
+
+document.addEventListener('mouseover', (e) => {
+  if (!e.ctrlKey || !e.altKey || state !== 'idle') return;
+
   const anchor = e.target.closest("a");
   if (anchor && anchor.href && anchor.closest('div#search')) {
+    state = 'locked';
     const query = new URLSearchParams(window.location.search).get("q");
-
-    // Show loading tooltip immediately
     showTooltip(anchor, "⏳ Summarizing...");
 
     chrome.runtime.sendMessage({
@@ -15,15 +27,20 @@ document.addEventListener("mouseover", (e) => {
 });
 
 chrome.runtime.onMessage.addListener((message) => {
-  console.log("📩 Received message from background:", message); // <-- Added debug log
+  console.log("📩 Received message from background:", message);
 
-  if (message.action === "displaySummary") {
+  if (message.action === "displaySummary" && state === 'locked') {
     const link = document.querySelector(`a[href="${message.url}"]`);
     if (link) {
       showTooltip(link, message.summary);
     }
   }
 });
+
+function hideTooltip() {
+  const tooltip = document.querySelector(".ai-summary-tooltip");
+  if (tooltip) tooltip.remove();
+}
 
 function showTooltip(element, text) {
   let tooltip = document.querySelector(".ai-summary-tooltip");
