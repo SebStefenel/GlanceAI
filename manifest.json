@@ -10,7 +10,7 @@
   ],
   "host_permissions": [
     "<all_urls>",
-    "https://api.together.xyz/*"
+    "https://api.groq.com/*"
   ],
   "background": {
     "service_worker": "background.js"

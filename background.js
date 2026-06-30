@@ -3,19 +3,23 @@ chrome.runtime.onMessage.addListener((request, sender) => {
     const { url, query } = request;
     console.log("Received summarize request for:", url, "with query:", query);
 
-    fetch(url)
+    fetch(url, {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
+        }
+      })
       .then(res => {
         console.log("Fetch response status:", res.status);
         if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
+          throw new Error(`Article fetch failed (${res.status})`);
         }
         return res.text();
       })
       .then(html => {
         console.log("HTML fetched, length:", html.length);
-        const text = html.replace(/<[^>]*>?/gm, "").slice(0, 4000);
+        const text = extractText(html);
         console.log("Text extracted, length:", text.length);
-        return summarizeWithTogether(text, query);
+        return summarizeWithGroq(text, query);
       })
       .then(summary => {
         console.log("Summary generated:", summary.substring(0, 100) + "...");
@@ -31,7 +35,9 @@ chrome.runtime.onMessage.addListener((request, sender) => {
       })
       .catch(err => {
         console.error("Summarization failed", err);
-        const message = err.message || "Unknown error";
+        const message = err.message?.includes("Failed to fetch")
+          ? "Could not fetch article (site may block requests)"
+          : err.message || "Unknown error";
         if (sender.tab?.id) {
           chrome.tabs.sendMessage(sender.tab.id, {
             action: "displaySummary",
@@ -43,13 +49,13 @@ chrome.runtime.onMessage.addListener((request, sender) => {
   }
 });
 
-async function summarizeWithTogether(text, query) {
+async function summarizeWithGroq(text, query) {
   // Step 1: Get the saved API key from Chrome storage
-  const { apiKey: TOGETHER_API_KEY } = await new Promise((resolve) => {
+  const { apiKey: GROQ_API_KEY } = await new Promise((resolve) => {
     chrome.storage.sync.get({ apiKey: '' }, resolve);
   });
 
-  if (!TOGETHER_API_KEY) {
+  if (!GROQ_API_KEY) {
     throw new Error("No API key found. Please set one in the extension options page.");
   }
 
@@ -58,25 +64,26 @@ async function summarizeWithTogether(text, query) {
 
   // Step 3: Build the API request
   const body = {
-    model: "deepseek-ai/DeepSeek-V3",
+    model: "llama-3.1-8b-instant",
     messages: [
       { role: "user", content: prompt }
     ]
   };
 
-  // Step 4: Make the request to Together API
+  // Step 4: Make the request to Groq API
   try {
-    const response = await fetch("https://api.together.xyz/v1/chat/completions", {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${TOGETHER_API_KEY}`,
+        "Authorization": `Bearer ${GROQ_API_KEY}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify(body)
     });
 
     if (!response.ok) {
-      throw new Error(`API request failed with status: ${response.status}`);
+      const errBody = await response.json().catch(() => ({}));
+      throw new Error(`API error ${response.status}: ${errBody?.error?.message || "unknown"}`);
     }
 
     const data = await response.json();
@@ -91,4 +98,19 @@ async function summarizeWithTogether(text, query) {
     console.error("API call failed:", error);
     throw error;
   }
+}
+
+function extractText(html) {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+
+  // Remove noise: scripts, styles, and layout boilerplate
+  doc.querySelectorAll('script, style, nav, footer, header, aside, iframe, noscript').forEach(el => el.remove());
+
+  // Prefer main content area if the page marks one
+  const main = doc.querySelector('article, main, [role="main"]') || doc.body;
+
+  return (main.textContent || '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 2750);
 }
