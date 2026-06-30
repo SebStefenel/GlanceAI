@@ -101,15 +101,16 @@ async function summarizeWithGroq(text, query) {
 }
 
 function extractText(html) {
-  const doc = new DOMParser().parseFromString(html, 'text/html');
-
-  // Remove noise: scripts, styles, and layout boilerplate
-  doc.querySelectorAll('script, style, nav, footer, header, aside, iframe, noscript').forEach(el => el.remove());
-
-  // Prefer main content area if the page marks one
-  const main = doc.querySelector('article, main, [role="main"]') || doc.body;
-
-  return (main.textContent || '')
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<nav[\s\S]*?<\/nav>/gi, '')
+    .replace(/<header[\s\S]*?<\/header>/gi, '')
+    .replace(/<footer[\s\S]*?<\/footer>/gi, '')
+    .replace(/<aside[\s\S]*?<\/aside>/gi, '')
+    .replace(/<iframe[\s\S]*?<\/iframe>/gi, '')
+    .replace(/<noscript[\s\S]*?<\/noscript>/gi, '')
+    .replace(/<[^>]+>/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
     .slice(0, 2750);
