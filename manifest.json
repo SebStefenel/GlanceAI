@@ -30,7 +30,7 @@
   "commands": {
     "toggle-glance": {
       "suggested_key": {
-        "default": "Ctrl+Shift+G"
+        "default": "Alt+Shift+G"
       },
       "description": "Toggle GlanceAI summary mode"
     }
