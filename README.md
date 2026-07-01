@@ -1,16 +1,16 @@
 # GlanceAI
 
-A Chrome extension that summarizes Google Search results on demand. Activate it with a keyboard shortcut, hover over a result link, and get a 2-sentence AI summary of the article — without opening it.
+A Chrome extension that summarizes Google Search results on demand. Activate it with a keyboard shortcut, hover over a result link, and get an AI-generated summary of the article — without opening it.
 
 ---
 
 ## How It Works
 
-1. Press **Alt+Shift+G** (or click the extension icon in the toolbar) — a blue badge appears in the bottom-right corner confirming GlanceAI is active
-2. Hover over any search result link — a tooltip appears with "Summarizing..." then updates with the summary
-3. Press **Alt+Shift+G** again, or press **Escape**, to dismiss the tooltip
+1. Press **Alt+Shift+G** (or click the extension icon) — a blue badge appears in the bottom-right corner confirming GlanceAI is active
+2. Hover over any search result link — a tooltip appears with the summary
+3. Click **Copy** in the tooltip to copy the text, or press **Alt+Shift+G** / **Escape** to dismiss
 
-You can also customize the shortcut at `chrome://extensions/shortcuts`.
+You can customize the shortcut at `chrome://extensions/shortcuts`.
 
 ---
 
@@ -21,7 +21,6 @@ You can also customize the shortcut at `chrome://extensions/shortcuts`.
 1. Go to `chrome://extensions`
 2. Enable **Developer mode** (top-right toggle)
 3. Click **Load unpacked** and select the `GlanceAI` folder
-4. The extension will appear in your extensions list
 
 ### 2. Get a Groq API Key
 
@@ -29,12 +28,25 @@ GlanceAI uses the [Groq](https://console.groq.com) API (free tier available).
 
 1. Sign up at [console.groq.com](https://console.groq.com)
 2. Go to **API Keys** and create a new key
-3. Copy the key
 
 ### 3. Add Your API Key
 
-1. Right-click the GlanceAI icon in the toolbar → **Options** (or go to `chrome://extensions` → GlanceAI → **Details** → **Extension options**)
-2. Paste your Groq API key and click **Save**
+Click the GlanceAI icon in the toolbar → **API Key** tab → paste your key → **Save Key**.
+
+---
+
+## Summary Formats
+
+Choose how the AI structures each summary from the **Options** tab in the popup:
+
+| Format | Output |
+|---|---|
+| **2 sentences** (default) | A concise 2-sentence overview relevant to your search query |
+| **Bullet points** | 3–4 key points from the article |
+| **Explain like I'm 5** | A plain-language summary anyone can understand |
+| **Pros & cons** | Structured pros and cons relevant to your query |
+
+The format is saved automatically and persists across sessions.
 
 ---
 
@@ -50,6 +62,7 @@ GlanceAI uses the [Groq](https://console.groq.com) API (free tier available).
 ## Notes
 
 - Only works on `google.com/search` pages
+- Summaries are cached in memory during a session — hovering the same link twice won't make a second API call
 - Some sites block programmatic fetches (paywalled news, Cloudflare-protected sites) — those results will show an error in the tooltip
 - PDF links are not supported
-- Free tier Groq rate limit: ~6000 tokens/minute (roughly 3 summaries per minute)
+- Free tier Groq rate limit: ~6,000 tokens/minute (roughly 3 summaries per minute)
