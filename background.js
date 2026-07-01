@@ -1,3 +1,5 @@
+const summaryCache = new Map();
+
 function sendToggle() {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     if (tabs[0]?.id) {
@@ -23,6 +25,18 @@ chrome.runtime.onMessage.addListener((request, sender) => {
     const { url, query } = request;
     console.log("Received summarize request for:", url, "with query:", query);
 
+    if (summaryCache.has(url)) {
+      console.log("Cache hit for:", url);
+      if (sender.tab?.id) {
+        chrome.tabs.sendMessage(sender.tab.id, {
+          action: "displaySummary",
+          summary: summaryCache.get(url),
+          url: url
+        });
+      }
+      return;
+    }
+
     fetch(url, {
         headers: {
           "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
@@ -43,6 +57,7 @@ chrome.runtime.onMessage.addListener((request, sender) => {
       })
       .then(summary => {
         console.log("Summary generated:", summary.substring(0, 100) + "...");
+        summaryCache.set(url, summary);
         if (sender.tab?.id) {
           chrome.tabs.sendMessage(sender.tab.id, {
             action: "displaySummary",
@@ -70,19 +85,23 @@ chrome.runtime.onMessage.addListener((request, sender) => {
 });
 
 async function summarizeWithGroq(text, query) {
-  // Step 1: Get the saved API key from Chrome storage
-  const { apiKey: GROQ_API_KEY } = await new Promise((resolve) => {
-    chrome.storage.sync.get({ apiKey: '' }, resolve);
+  const { apiKey: GROQ_API_KEY, summaryFormat = 'concise' } = await new Promise((resolve) => {
+    chrome.storage.sync.get({ apiKey: '', summaryFormat: 'concise' }, resolve);
   });
 
   if (!GROQ_API_KEY) {
     throw new Error("No API key found. Please set one in the extension options page.");
   }
 
-  // Step 2: Build the prompt
-  const prompt = `Query: "${query}". Article: """${text}"""\n\nIn 2 sentences explain how this article reflects the search query.`;
+  const prompts = {
+    concise: `Query: "${query}". Article: """${text}"""\n\nIn 2 sentences explain how this article reflects the search query.`,
+    bullets: `Query: "${query}". Article: """${text}"""\n\nList 3-4 key points from this article relevant to the search query. Use • as the bullet character, one point per line.`,
+    eli5: `Query: "${query}". Article: """${text}"""\n\nExplain what this article is about in simple terms a 10-year-old would understand. Keep it to 2 sentences.`,
+    'pros-cons': `Query: "${query}". Article: """${text}"""\n\nList the main pros and cons from this article relevant to the search query. Format as "Pros: ..." and "Cons: ..." on separate lines.`,
+  };
 
-  // Step 3: Build the API request
+  const prompt = prompts[summaryFormat] || prompts.concise;
+
   const body = {
     model: "llama-3.1-8b-instant",
     messages: [
@@ -90,7 +109,6 @@ async function summarizeWithGroq(text, query) {
     ]
   };
 
-  // Step 4: Make the request to Groq API
   try {
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",

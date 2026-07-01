@@ -81,13 +81,31 @@ function showTooltip(element, text) {
     document.body.appendChild(tooltip);
   }
 
-  tooltip.textContent = text;
+  tooltip.innerHTML = '';
+
+  const textEl = document.createElement('div');
+  textEl.className = 'ai-summary-text';
+  textEl.textContent = text;
+  tooltip.appendChild(textEl);
+
+  if (!text.startsWith('⏳')) {
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'ai-summary-copy';
+    copyBtn.textContent = 'Copy';
+    copyBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      navigator.clipboard.writeText(text).then(() => {
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => { copyBtn.textContent = 'Copy'; }, 1500);
+      }).catch(() => {});
+    });
+    tooltip.appendChild(copyBtn);
+  }
 
   const rect = element.getBoundingClientRect();
   const top = rect.top - 10;
   const left = rect.right + 10;
 
-  // Keep tooltip on screen
   tooltip.style.top = `${Math.max(8, top)}px`;
   tooltip.style.left = `${Math.min(left, window.innerWidth - 320)}px`;
 }
