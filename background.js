@@ -17,10 +17,6 @@ chrome.commands.onCommand.addListener((command) => {
   }
 });
 
-chrome.action.onClicked.addListener(() => {
-  console.log("Icon clicked");
-  sendToggle();
-});
 
 chrome.runtime.onMessage.addListener((request, sender) => {
   if (request.action === "summarize") {
