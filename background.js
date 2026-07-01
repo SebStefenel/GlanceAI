@@ -1,11 +1,25 @@
+function sendToggle() {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (tabs[0]?.id) {
+      chrome.tabs.sendMessage(tabs[0].id, { action: "toggleMode" }, (response) => {
+        if (chrome.runtime.lastError) {
+          console.error("Could not reach content script:", chrome.runtime.lastError.message);
+        }
+      });
+    }
+  });
+}
+
 chrome.commands.onCommand.addListener((command) => {
   if (command === "toggle-glance") {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs[0]?.id) {
-        chrome.tabs.sendMessage(tabs[0].id, { action: "toggleMode" });
-      }
-    });
+    console.log("Command fired: toggle-glance");
+    sendToggle();
   }
+});
+
+chrome.action.onClicked.addListener(() => {
+  console.log("Icon clicked");
+  sendToggle();
 });
 
 chrome.runtime.onMessage.addListener((request, sender) => {

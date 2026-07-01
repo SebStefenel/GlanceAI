@@ -2,6 +2,7 @@
 // 'active' = shortcut pressed, waiting for hover
 // 'locked' = tooltip pinned, shortcut or Escape dismisses
 let state = 'idle';
+let activeAnchor = null; // direct reference so we don't need to re-query by URL
 
 chrome.runtime.onMessage.addListener((message) => {
   if (message.action === "toggleMode") {
@@ -11,16 +12,14 @@ chrome.runtime.onMessage.addListener((message) => {
     } else {
       hideTooltip();
       hideIndicator();
+      activeAnchor = null;
       state = 'idle';
     }
     return;
   }
 
-  if (message.action === "displaySummary" && state === 'locked') {
-    const link = document.querySelector(`a[href="${message.url}"]`);
-    if (link) {
-      showTooltip(link, message.summary);
-    }
+  if (message.action === "displaySummary" && state === 'locked' && activeAnchor) {
+    showTooltip(activeAnchor, message.summary);
   }
 });
 
@@ -30,6 +29,7 @@ document.addEventListener('mouseover', (e) => {
   const anchor = e.target.closest("a");
   if (anchor && anchor.href && anchor.closest('div#search')) {
     state = 'locked';
+    activeAnchor = anchor;
     hideIndicator();
     const query = new URLSearchParams(window.location.search).get("q");
     showTooltip(anchor, "⏳ Summarizing...");
@@ -46,6 +46,7 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && state !== 'idle') {
     hideTooltip();
     hideIndicator();
+    activeAnchor = null;
     state = 'idle';
   }
 });
@@ -76,22 +77,17 @@ function showTooltip(element, text) {
   if (!tooltip) {
     tooltip = document.createElement("div");
     tooltip.className = "ai-summary-tooltip";
-    tooltip.style.position = "absolute";
-    tooltip.style.background = "#fff";
-    tooltip.style.border = "1px solid #ccc";
-    tooltip.style.padding = "8px 12px";
-    tooltip.style.borderRadius = "6px";
-    tooltip.style.boxShadow = "0 4px 8px rgba(0,0,0,0.2)";
-    tooltip.style.zIndex = "9999";
-    tooltip.style.maxWidth = "300px";
-    tooltip.style.fontSize = "14px";
-    tooltip.style.lineHeight = "1.4";
+    tooltip.style.cssText = 'position:fixed;background:#fff;border:1px solid #ccc;padding:8px 12px;border-radius:6px;box-shadow:0 4px 8px rgba(0,0,0,0.2);z-index:99999;max-width:300px;font-size:14px;line-height:1.4;';
     document.body.appendChild(tooltip);
   }
 
   tooltip.textContent = text;
 
   const rect = element.getBoundingClientRect();
-  tooltip.style.top = `${window.scrollY + rect.top - 10}px`;
-  tooltip.style.left = `${window.scrollX + rect.right + 10}px`;
+  const top = rect.top - 10;
+  const left = rect.right + 10;
+
+  // Keep tooltip on screen
+  tooltip.style.top = `${Math.max(8, top)}px`;
+  tooltip.style.left = `${Math.min(left, window.innerWidth - 320)}px`;
 }
