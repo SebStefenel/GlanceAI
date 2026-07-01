@@ -1,42 +1,55 @@
 # GlanceAI
 
-# 🔍 AI Search Summary Chrome Extension
-
-A Chrome Extension that uses Together.ai to summarize articles linked in Google Search results in real time. When you hover over a link, it fetches the article, runs it through an LLM, and shows a summary based on your original search query.
+A Chrome extension that summarizes Google Search results on demand. Activate it with a keyboard shortcut, hover over a result link, and get a 2-sentence AI summary of the article — without opening it.
 
 ---
 
-## ✨ Features
+## How It Works
 
-- ⌛️ Instant AI-generated summaries of search results
-- 🧠 Uses Together.ai LLMs (e.g., DeepSeek-V3) for accurate context matching
-- ⚡️ No need to open each result — preview relevance instantly
-- 🎯 Built for Google Search results
-- 🧩 Lightweight and easy to use
+1. Press **Alt+Shift+G** (or click the extension icon in the toolbar) — a blue badge appears in the bottom-right corner confirming GlanceAI is active
+2. Hover over any search result link — a tooltip appears with "Summarizing..." then updates with the summary
+3. Press **Alt+Shift+G** again, or press **Escape**, to dismiss the tooltip
+
+You can also customize the shortcut at `chrome://extensions/shortcuts`.
 
 ---
 
-## 🛠️ Tech Stack
+## Setup
+
+### 1. Load the Extension
+
+1. Go to `chrome://extensions`
+2. Enable **Developer mode** (top-right toggle)
+3. Click **Load unpacked** and select the `GlanceAI` folder
+4. The extension will appear in your extensions list
+
+### 2. Get a Groq API Key
+
+GlanceAI uses the [Groq](https://console.groq.com) API (free tier available).
+
+1. Sign up at [console.groq.com](https://console.groq.com)
+2. Go to **API Keys** and create a new key
+3. Copy the key
+
+### 3. Add Your API Key
+
+1. Right-click the GlanceAI icon in the toolbar → **Options** (or go to `chrome://extensions` → GlanceAI → **Details** → **Extension options**)
+2. Paste your Groq API key and click **Save**
+
+---
+
+## Tech Stack
 
 - Manifest V3 Chrome Extension
 - JavaScript (ES6+)
-- Together.ai API (`deepseek-ai/DeepSeek-V3`)
-- Vanilla DOM manipulation and event handling
+- [Groq API](https://groq.com) — `llama-3.1-8b-instant` model
+- Chrome Extension Commands API for keyboard shortcut handling
 
 ---
 
-## 🔑 Setup: SetUp Your Own API Key
+## Notes
 
-To use this extension, **you must generate your own API key from [Together.ai](https://www.together.ai)**. The extension relies on the Together API to generate AI summaries, and each user must authenticate with their own key.
-
-### ✅ How to Get Started:
-
-1. **Sign up at** [https://www.together.ai](https://www.together.ai)
-2. Go to the **API Keys** section in your account dashboard
-3. **Generate a new key**
-4. Open the extension’s Options 
-5. **Paste your API key** and click **Save**
-
-The extension will now use your key to summarize links via the `deepseek-ai/DeepSeek-V3` model.
-
-> ⚠️ **Note:** Do not share your API key publicly — it is tied to your usage quota and billing.
+- Only works on `google.com/search` pages
+- Some sites block programmatic fetches (paywalled news, Cloudflare-protected sites) — those results will show an error in the tooltip
+- PDF links are not supported
+- Free tier Groq rate limit: ~6000 tokens/minute (roughly 3 summaries per minute)
