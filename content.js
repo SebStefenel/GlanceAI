@@ -1,31 +1,36 @@
-let altHeld = false;
-let justDismissed = false;
-let state = 'idle'; // 'idle' | 'locked'
+// 'idle'   = waiting for shortcut
+// 'active' = shortcut pressed, waiting for hover
+// 'locked' = tooltip pinned, shortcut or Escape dismisses
+let state = 'idle';
 
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Alt') {
-    altHeld = true;
-    if (state === 'locked') {
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.action === "toggleMode") {
+    if (state === 'idle') {
+      state = 'active';
+      showIndicator();
+    } else {
       hideTooltip();
+      hideIndicator();
       state = 'idle';
-      justDismissed = true;
+    }
+    return;
+  }
+
+  if (message.action === "displaySummary" && state === 'locked') {
+    const link = document.querySelector(`a[href="${message.url}"]`);
+    if (link) {
+      showTooltip(link, message.summary);
     }
   }
 });
 
-document.addEventListener('keyup', (e) => {
-  if (e.key === 'Alt') {
-    altHeld = false;
-    justDismissed = false;
-  }
-});
-
 document.addEventListener('mouseover', (e) => {
-  if (!altHeld || justDismissed || state !== 'idle') return;
+  if (state !== 'active') return;
 
   const anchor = e.target.closest("a");
   if (anchor && anchor.href && anchor.closest('div#search')) {
     state = 'locked';
+    hideIndicator();
     const query = new URLSearchParams(window.location.search).get("q");
     showTooltip(anchor, "⏳ Summarizing...");
 
@@ -37,16 +42,29 @@ document.addEventListener('mouseover', (e) => {
   }
 });
 
-chrome.runtime.onMessage.addListener((message) => {
-  console.log("📩 Received message from background:", message);
-
-  if (message.action === "displaySummary" && state === 'locked') {
-    const link = document.querySelector(`a[href="${message.url}"]`);
-    if (link) {
-      showTooltip(link, message.summary);
-    }
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && state !== 'idle') {
+    hideTooltip();
+    hideIndicator();
+    state = 'idle';
   }
 });
+
+function showIndicator() {
+  let indicator = document.getElementById('glance-indicator');
+  if (!indicator) {
+    indicator = document.createElement('div');
+    indicator.id = 'glance-indicator';
+    indicator.textContent = '🔍 GlanceAI active — hover a result';
+    indicator.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#4285f4;color:#fff;padding:8px 14px;border-radius:20px;font-size:13px;z-index:99999;box-shadow:0 2px 8px rgba(0,0,0,0.3);';
+    document.body.appendChild(indicator);
+  }
+}
+
+function hideIndicator() {
+  const indicator = document.getElementById('glance-indicator');
+  if (indicator) indicator.remove();
+}
 
 function hideTooltip() {
   const tooltip = document.querySelector(".ai-summary-tooltip");
