@@ -1,27 +1,27 @@
-let ctrlAltHeld = false;
+let altHeld = false;
 let justDismissed = false;
 let state = 'idle'; // 'idle' | 'locked'
 
 document.addEventListener('keydown', (e) => {
-  if (e.ctrlKey && e.altKey) {
-    ctrlAltHeld = true;
+  if (e.key === 'Alt') {
+    altHeld = true;
     if (state === 'locked') {
       hideTooltip();
       state = 'idle';
-      justDismissed = true; // prevent immediate re-trigger on same keypress
+      justDismissed = true;
     }
   }
 });
 
 document.addEventListener('keyup', (e) => {
-  if (!e.ctrlKey || !e.altKey) {
-    ctrlAltHeld = false;
+  if (e.key === 'Alt') {
+    altHeld = false;
     justDismissed = false;
   }
 });
 
 document.addEventListener('mouseover', (e) => {
-  if (!ctrlAltHeld || justDismissed || state !== 'idle') return;
+  if (!altHeld || justDismissed || state !== 'idle') return;
 
   const anchor = e.target.closest("a");
   if (anchor && anchor.href && anchor.closest('div#search')) {
