@@ -1,16 +1,27 @@
-// 'idle'   = ready to trigger on Ctrl+Alt + hover
-// 'locked' = tooltip is pinned, Ctrl+Alt dismisses it
-let state = 'idle';
+let ctrlAltHeld = false;
+let justDismissed = false;
+let state = 'idle'; // 'idle' | 'locked'
 
 document.addEventListener('keydown', (e) => {
-  if (e.ctrlKey && e.altKey && state === 'locked') {
-    hideTooltip();
-    state = 'idle';
+  if (e.ctrlKey && e.altKey) {
+    ctrlAltHeld = true;
+    if (state === 'locked') {
+      hideTooltip();
+      state = 'idle';
+      justDismissed = true; // prevent immediate re-trigger on same keypress
+    }
+  }
+});
+
+document.addEventListener('keyup', (e) => {
+  if (!e.ctrlKey || !e.altKey) {
+    ctrlAltHeld = false;
+    justDismissed = false;
   }
 });
 
 document.addEventListener('mouseover', (e) => {
-  if (!e.ctrlKey || !e.altKey || state !== 'idle') return;
+  if (!ctrlAltHeld || justDismissed || state !== 'idle') return;
 
   const anchor = e.target.closest("a");
   if (anchor && anchor.href && anchor.closest('div#search')) {
