@@ -1,6 +1,6 @@
 # GlanceAI
 
-A Chrome extension that summarizes Google Search results on demand. Activate it with a keyboard shortcut, hover over a result link, and get an AI-generated summary of the article — without opening it.
+A Chrome extension that summarizes Google Search results on demand. Activate it with a keyboard shortcut, hover over a result link, and get an AI-generated summary of the article — without opening it. Every summary is **query-aware**: the AI knows what you searched for and frames the summary around your specific question, not just the article in general.
 
 ---
 
@@ -41,10 +41,12 @@ Choose how the AI structures each summary from the **Options** tab in the popup:
 
 | Format | Output |
 |---|---|
-| **2 sentences** (default) | A concise 2-sentence overview relevant to your search query |
-| **Bullet points** | 3–4 key points from the article |
-| **Explain like I'm 5** | A plain-language summary anyone can understand |
+| **2 sentences** (default) | A concise 2-sentence overview framed around your search query |
+| **Bullet points** | 3–4 key points from the article relevant to your query |
+| **Explain like I'm 5** | A plain-language summary framed around your search query |
 | **Pros & cons** | Structured pros and cons relevant to your query |
+
+All formats pass your search query to the AI so the summary answers *why this result matters for what you searched*, not just what the article is about.
 
 The format is saved automatically and persists across sessions.
 
